@@ -1,0 +1,117 @@
+
+<h1>SignificantAttributes</h1>
+
+<p>SignificantAttributes is a Python script giving you statistical scores about the over- or under-abundance of attributes in an entity list. For example, if you have a list of genes of interest (obtained from microarrays experiment, etc.), this software will give you GO terms that seems over- or under-represented in this list, compared to the whole genome annotation. This is the same kind of algorithm than those used in tools like <a href='http://funspec.med.utoronto.ca/' target='_blank'>FunSpec</a> or <a href='http://www.fatigo.org/' target='_blank'>FatiGO</a>.</p>
+
+<h2>Installation</h2>
+
+<p>Unzip the given archive. The software is ready to use if a Python interpreter is available.</p>
+
+<h2>Changelog</h2>
+
+<ul>
+  <li><b>0.2 (2005-08-25)</b> Small modifications of the options names and output description to make the script easier to use</li>
+  <li><b>0.1 (2005-07-11)</b> Original version</li>
+</ul>
+
+<h2>Input</h2>
+
+<p>Two kind of information must be given to the software : (1) a list of entities in a reference population, with associated attributes, and (2) a list of entities from this population (the query). Additionally, you can provide a list of annotations for each attributes.</p>
+
+<p>Each of these information must be stored in a file whose name is given to the software in the command line.</p>
+
+<p>The main options are (type <code>./SignificantAttributes.py --help</code> for a full list) :</p>
+
+<h3>Mapping (-m/--mapping option)</h3>
+
+<p>The population of reference. You must provide here a file mapping attributes of interest to all entities in your population. This population will be the reference to assess the over- or under-representation of attributes in your query.</p>
+
+<p>The file format is simple text : each line begin with the name of an entity, followed by none, one or several attribute name separated by tabs.</p>
+
+<p>Here is an example :</p>
+
+<pre>
+entity1	attribute1
+entity2	attribute2	attribute2
+entity3	attribute1
+entity4
+entity5	attribute3
+...
+</pre>
+
+<p>If a lot of entities didn't have associated attributes, you can avoid including them in the file as long as you precise the total number of entities in the population. To do this, simply add anywhere in the file a line with this number preceded by a '@', like <code>@1234</code>.</p>
+
+<p>Important notes :</p>
+<ul>
+  <li>the case of entities and attributes names is important, as the software is case sensitive. That mean for example that two attributes called 'a' and 'A' will be considered as different.</li>
+  <li>in each input file, empty lines and lines beginning with a '#' (i.e. comments) are ignored.</li>
+</ul>
+
+<h3>Query (-q/--query option)</h3>
+
+<p>The list of entities of interest for which you want assess the over- or under-representation of some attributes.</p>
+
+<p>Simply give a list of entities names (one by line) ; annotations can be provided and they will be used in the results display.</p>
+
+<pre>
+entity1	Uuei iiui eue.
+entity2
+...
+</pre>
+
+<h3>Attributes' annotations (--attributes-annotations option)</h3>
+
+<p><b>Optional.</b> If you want to give annotations for attributes too, you can provide a file in this format : each line begin with the name of the attribute (warning ! case sensitive), followed by  a string.</p>
+
+<p>Here is an example :</p>
+
+<pre>
+attribute1	Ieoouu iue oiou.
+...
+</pre>
+
+<h2>Output</h2>
+
+<p>After running the software you will obtain a tabs-separated table on the standard output. Each line is an attribute present at least one time in the query ; columns are successively</p>
+
+<ul>
+  <li>'Attributes' : the name of the attribute</li>
+  <li>annotation(s) for this attribute (if any)</li>
+  <li>'Enrichment' : ratio between k/C and n/G (see below). If equals to 1, means that the query contains proportionally no more or less entitys with this attribute than the population</li>
+  <li>'P-value': probability that this enrichment can be obtained by chance. Range between 0 (low probability) and 1 (high probability, meaning that the abundance of this attribute in the query is non significant)</li>
+  <li>'n': size of the query (number of entitys in the query file)</li>
+  <li>'G': size of the population (number of entitys in the population)</li>
+  <li>'k': number of entitys in the query that have this attribute</li>
+  <li>'C': number of entitys in the population that have this attribute</li>
+  <li>'Entities': entities having this attribute in the query (the whole line is duplicated for each entity having this same attribute)</li>
+  <li>annotation for this entity (if any)</li>
+</ul>
+
+<h2>Example</h2>
+
+<p>A sample population, query and annotations file is packed with the software. They are data from Mus musculus, where attributes are GO terms and entities the MGI identifiers of genes. A dummy query (list of MGI identifiers) is provided.</p>
+
+<p>Once you have unpacked the .zip file containing the software, go on the resulting directory and try this :</p>
+
+<pre>
+./SignificantAttributes.py --mapping example/go.mapping.txt --attributes-annotations example/go.annotations.txt --query example/query.txt
+</pre>
+
+<p>You will obtain the results on the standard output (add a '> xxx' to redirect this in a file) :</p>
+
+<pre>
+Attributes		Enrichment	P-value	k	n	C	G	Entities	
+GO:0000166	nucleotide binding	1.48838	0.504 	1	8	1355	16134	MGI:106067	U42385, Smc2l1, SMC2 structural maintenance of chromosomes 2-like 1 (yeast)
+GO:0003676	nucleic acid binding	5.69703	0.0452	2	8	708	16134	MGI:105099	X57337, Pcolce, procollagen C-proteinase enhancer protein
+GO:0003676	nucleic acid binding	5.69703	0.0452	2	8	708	16134	MGI:106184	M63801, Gja1, gap junction membrane channel protein alpha 1
+...
+</pre>
+
+<p>Here for example, the attribute 'GO:0003676' (nucleic acid binding) seems over-represented in you query ; the p-value is not very good, but you got the idea. We see also that the small over-representation of the 'GO:0000166' attribute is meaningless (high p-value).</p>
+
+<h2>Important note about GO (Gene Ontology)</h2>
+
+<p>The algorithm used by SignificantAttributes (and similar softwares) is efficient only if an attribute is associated to several entities in the population (i.e. if this attribute is useful to distinguish a category of entities of this population). In <a href='http://www.geneontology.org/' target='_blank'>Gene Ontology</a>, the problem is that the notion of 'category' fail : the reason is that a lot of highly-specialized attributes (here GO terms and their 'children') can be used to design the same global information. These GO terms are linked in the GO ontology, but SignificantAttributes can't deal with this : it will consider all these attributes as distinct, creating artifactual and meaningless categories (as few genes will be annotated with each of these attributes).</p>
+
+<p>The solution is called <a href='http://www.geneontology.org/GO.slims.shtml' target='_blank'>GOSlim </a> (part of the <a href='http://www.godatabase.org/dev/pod/go-perl.html' target='_blank'>go-perl</a> package) : this additionnal tool merge GO terms that are related to a same global one, giving you access to more usable attributes.</p>
+
