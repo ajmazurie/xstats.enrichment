@@ -1,0 +1,115 @@
+
+<h1>Enrichment</h1>
+
+<p><code>Enrichment</code> is a Python library that can be used to assess over or under-representation of occurrences in a list. It provides two methods: <code>fisher_exact_test</code>, and <code>mHG</code>.</p>
+
+<p>The first method aims at answering the question: <i>Is my subset of objects significantly enriched or depleted in some attributes, when compared to the general population?</i> The Fisher's exact test provides an answer by comparing two proportions: the fraction of objects in the subset that have an attribute of interest, and the fraction of objects in the general population that have this attribute. In molecular biology, this situation frequently arises when analyzing genes and proteins. E.g., if 20% of the genes in a genome belong to a given pathway, would it be expected that 80% of the genes in a subset also belong to this pathway, or can this be explained by chance alone?</p>
+
+<p>The second method aims at answering the question: <i>Is my ranked list of object significantly enriched at the top in some attributes?</i> Again, this question is common in molecular biology. Let's consider a list of genes or proteins, ranked according to how well they respond to an experimental stimulus. A typical request from the biologist is to ask which pathways (or other functional sets of interest) are most represented at the top of this list; i.e., among the genes or proteins that most respond to the stimulus.</p>
+
+<h2>Installation</h2>
+
+<p>The <code>Enrichment</code> library comes as a ready-to-install package, which can be downloaded from the <a href='http://oenone.net/tools/' target='_blank'>author's website</a>. The easiest way to install it is through the <code>easy_install</code> installer, by typing <code>easy_install http://aurelien.mazurie.oenone.net/content/research/tools/enrichment-XX.tar.gz</code> on the command line, with XX being the version of the library. The package can also be downloaded first and later installed, again by typing <code>easy_install [path to]/enrichment-XX.tar.gz</code> on the command line.</p>
+
+<p>Alternatively, the package can be downloaded, unzipped, and installed using the following command: <code>python [path to unzipped package]/setup.py install</code>.</p>
+
+<p>Once installed, the library is called by adding <code>import enrichment</code> in your Python code.</p>
+
+<h2>Usage</h2>
+
+<h3>fisher_exact_test()</h3>
+
+<p>The method calculates the probability of getting <b>b</b> successes in a sample of <b>n</b> distinct objects drawn without replacement from a population of <b>N</b> objects with <b>B</b> successes. It takes four parameters:</p>
+
+<ul>
+  <li><code>b</code>, number of objects in the selection having a given attribute</li>
+  <li><code>n</code>, size of the selection</li>
+  <li><code>B</code>, number of objects in the population having this attribute</li>
+  <li><code>N</code>, size of the population</li>
+</ul>
+
+<p>This corresponds to the following contingency table:</p>
+
+<center>
+<table border='0' cellpadding='2'>
+  <tr><td></td><td>Have the attribute</td><td>Don't have the attribute</td><td>Total</td></tr>
+  <tr><td>In the selection</td><td><b>b</b></td><td>n - b</td><td bgcolor='#eee'><b>n</b></td>
+  <tr><td>Not in the selection</td><td>B - b</td><td>N - B - n + b</td><td bgcolor='#eee'>N - n</td>
+  <tr><td>Total</td><td bgcolor='#eee'><b>B</b></td><td bgcolor='#eee'>N - B</td><td bgcolor='#eee'><b>N</b></td>
+</table>
+</center>
+
+<p>The method then evaluates the null hypothesis, b / n - (B - b) / (N - n) = 0 and return the left, right and two-sided p-values.</p>
+
+<p>The left-tailed version of the test evaluates whether the proportion of selected objects that have a given attribute is significantly <b>lower</b> than the proportion of non-selected objects having this attribute. It can be used to evaluate the depletion of the selection in objects having the attribute: it returns the probability of observing this depletion or a higher one (or a lower enrichment) by chance.</p>
+
+<p>The right-tailed version of the test evaluates whether the proportion of selected objects that have a given attribute is significantly <b>higher</b> than the proportion of non-selected objects having this attribute. It can be used to evaluate the enrichment of the selection in objects having the attribute: it returns the probability of observing this enrichment or a higher one by chance.</p>
+
+<p>The two-sided version of the test detects a significant difference in the proportions in either direction (that is, when the proportion of selected objects having the attribute is either higher or lower than would be expected by random chance).</p>
+
+<p><b>Example:</b></p>
+
+<pre>
+import enrichment
+
+# 120 out of 1800 objects in the population have a given property.
+# In a subset of 500 objects, only 1 has been found to have this property.
+# This represents an enrichment (actually, a depletion) of ...
+
+print enrichment.enrichment(1, 500, 120, 1800) # i.e., 0.03
+
+# Is that significant? I.e., what is the probability to observe such an
+# enrichment by chance alone? Let's calculate the two-sided p-value (a safe
+# choice when we don't know in advance in which direction the difference
+# between the subset and the population goes)
+
+print enrichment.fisher_exact_test(1, 500, 120, 1800)[2] # i.e., 1.5e-16
+
+# Indeed, this depletion is significant at an error rate of 5% (i.e., 0.05)
+</pre>
+
+<p><b>Reference:</b></p>
+<ul>
+  <li>Wikipedia: <a href='http://en.wikipedia.org/wiki/Fisher's_exact_test' target='_blank'>http://en.wikipedia.org/wiki/Fisher's_exact_test</a></li>
+</ul>
+
+<h3>mHG()</h3>
+
+<p>The method calculates the probability of obtaining the observed density of successes at the top of a ranked list of <b>N</b> objects under the null assumption that all repartitions of <b>B</b> successes in the list are equiprobable. It works by calculating the Fisher's exact test for all possible partitions of the ranked list into 'top' and 'rest', then calculating an exact p-value for the partition with the most significant enrichment (see References). It takes five parameters, of which four are optional:</p>
+
+<ul>
+  <li><code>s</code>, a ranked 'occurrence vector'; i.e., a vector that states, for all object in the ranked list, their success. If there is no success in the provided list, None is returned</li>
+  <li><code>B</code>, the number of successes in the population. If the list represents the whole population, then it can be let to None; <code>B</code> will be automatically calculated</li>
+  <li><code>N</code>, the size of the population. If the list represents the whole population, then it can be let to None; <code>N</code> will be automatically calculated</li>
+  <li><code>max_size</code>, the subset of the occurrence vector that should be considered. By default, <code>max_size</code> is set to 1000 for speed purpose. However, it can be set to <code>len(s)</code> if the occurrence vector is not too large</li>
+  <li><code>with_pivot</code>, a flag which, when set to True, makes <code>mHG()</code> to return the pivot together with the p-value. The pivot is the position in the occurrence vector that delimitates the 'top' ranked objects with the most significant enrichment (see References)</li>
+</ul>
+
+<p><b>Example:</b></p>
+
+<pre>
+import enrichment
+
+# let's create a dummy occurrence vector with equi-distributed successes
+v1 = [True, False] * 500
+
+# as expected, this fake ranked list shows no significant enrichment at its top:
+print enrichment.mHG(v1) # 0.99204
+
+# let's now create a second occurrence vector, of which half of the 100 first objects
+# are 'successes' (i.e., have a given property)
+v2 = [True, False] * 50
+
+# ... and the 500 following ones aren't
+v2 += [False] * 500
+
+# this new vector is shown to be enriched, the enriched 'top' being (unsurprisingly)
+# found to the first 100 objects (objects 0 to 99)
+print enrichment.hHG(v2, with_pivot = True) # (1.6263e-19, 99)
+</pre>
+
+<p><b>References:</b></p>
+<ul>
+  <li>Eden E, Lipson D, Yogev S and Yakhini Z. Motif discovery in ranked lists of DNA sequences. PLoS Computational Biology, 2007 Mar 23;3(3):e39</li>
+  <li>Eden E. Discovering motifs in ranked lists of DNA sequences. Research thesis, 2007 Jan</li>
+</ul>

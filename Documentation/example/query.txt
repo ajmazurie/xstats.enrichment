@@ -1,8 +1,0 @@
-MGI:104814	X67644, Ier3, immediate early response 3
-MGI:104871	M27073, Ppp1cb, "protein phosphatase 1, catalytic subunit, beta isoform"
-MGI:104971	Z31362, Npn3, neoplastic progression 3
-MGI:105099	X57337, Pcolce, procollagen C-proteinase enhancer protein
-MGI:105959	U37721, Cox8a, "cytochrome c oxidase, subunit VIIIa"
-MGI:106035	X82786, Mki67, antigen identified by monoclonal antibody Ki 67
-MGI:106067	U42385, Smc2l1, SMC2 structural maintenance of chromosomes 2-like 1 (yeast)
-MGI:106184	M63801, Gja1, gap junction membrane channel protein alpha 1
