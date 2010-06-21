@@ -8,7 +8,9 @@ import enrichment_
 # Adapted from WordHoard project - http://wordhoard.northwestern.edu
 # (edu.northwestern.at.utils.math.statistics.FishersExactTest)
 def fisher_exact_test (b, n, B, N):
-	assert (b <= n) and (n <= N) and (B <= N) and (b <= B)
+	if (not ((b <= n) and (n <= N) and (B <= N) and (b <= B))):
+		raise ValueError("Malformed contingency table: b is %s, n is %s, B is %s, N is %s" % (b, n, B, N))
+
 	um, lm = min(n, B), max(0, n + B - N)
 
 	if (um == lm):
@@ -58,7 +60,8 @@ def mHG (occurrences, B = None, N = None, max_size = 1000, with_pivot = False):
 		N = len(occurrences)
 		N_ = min(N, max_size)
 
-	assert (b <= B <= N)
+	if (not (b <= B <= N)):
+		raise ValueError("Malformed contingency table: b is %s, B is %s, N is %s" % (b, B, N)) 
 
 	if (b == 0) or (B == 0):
 		if (with_pivot):

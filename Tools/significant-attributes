@@ -2,13 +2,13 @@
 
 import optparse, sys, os
 
-p = optparse.OptionParser()
-
-p.add_option("-l", "--list", dest = "list_fn", metavar = "FILENAME",
-	help = "Ranked list of objects")
+p = optparse.OptionParser(usage = "%prog -s|-l [-o] [options]")
 
 p.add_option("-s", "--subset", dest = "subset_fn", metavar = "FILENAME",
 	help = "Subset of objects")
+
+p.add_option("-l", "--list", dest = "list_fn", metavar = "FILENAME",
+	help = "Ranked list of objects")
 
 p.add_option("-S", "--population-size", type = "int", dest = "population_size", metavar = "INTEGER",
 	help = "Size of the population (-s/--subset option)")
@@ -18,6 +18,9 @@ p.add_option("-a", "--annotations", dest = "annotations_fn", metavar = "FILENAME
 
 p.add_option("-o", "--output", dest = "output_fn", metavar = "FILENAME",
 	help = "Output file (default: stdout)")
+
+p.add_option("-d", "--delimiter", dest = "delimiter", metavar = "CHAR", default = ',',
+	help = "Delimiter for input and output file columns. Default: '%default'")
 
 (p, a) = p.parse_args()
 
@@ -48,67 +51,78 @@ if (not p.output_fn):
 	p.output_fn = sys.stdout
 else:
 	p.output_fn = open(p.output_fn, 'w')
-	print >>p.output_fn, "Property	P-value (uncorrected)	P-value (corrected)"
 
 #:::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::::
 
-from stream import readline
-import xpickle, xhash
-import ui, enrichment, multiple_testing
+import ui
 
-print >>sys.stderr, "reading from '%s'" % p.annotations_fn
+import csv
+import Enrichment
 
-Object2Properties = {}
-Property2Objects = {}
+o = csv.writer(p.output_fn, delimiter = p.delimiter)
 
-for data in readline(p.annotations_fn, split_by = '	'):
-	object_id = data[0]
-	for property in data[1:]:
-		xhash.set(Object2Properties, (object_id, property))
-		xhash.set(Property2Objects, (property, object_id))
+print >>sys.stderr, "reading annotations from '%s'" % p.annotations_fn
 
-print "  %s objects annotated with %s properties" % (len(Object2Properties), len(Property2Objects))
+Object2Annotations = {}
+Annotation2Objects = {}
+
+for row in csv.reader(open(p.annotations_fn, 'r'), delimiter = p.delimiter):
+	object_id = row[0]
+
+	for annotation in row[1:]:
+		if (not object_id in Object2Annotations):
+			Object2Annotations[object_id] = {}
+
+		if (not annotation in Annotation2Objects):
+			Annotation2Objects[annotation] = {}
+
+		Object2Annotations[object_id][annotation] = True
+		Annotation2Objects[annotation][object_id] = True
+
+print >>sys.stderr, "  %s objects with %s distinct annotations" % (len(Object2Annotations), len(Annotation2Objects))
+
+o.writerow(("Annotation", "P-value (uncorrected)", "P-value (corrected)"))
 
 if (p.list_fn):
 	print >>sys.stderr, "reading ranked list from '%s'" % p.list_fn
 
 	list = []
 	seen = {}
-	for object_id in readline(p.list_fn):
+	for row in csv.reader(open(p.list_fn, 'r'), delimiter = p.delimiter):
+		object_id = row[0]
 		list.append(object_id)
+
 		if (object_id in seen):
 			error("the list contains duplicate entries")
 
 		seen[object_id] = True
 
-	print >>sys.stderr, "  %s objects" % len(list)
-
 	occurrence = {}
-	properties = {}
+	annotations = {}
 
 	for i, object_id in enumerate(list):
-		for property in Object2Properties.get(object_id, []):
-			if (not property in occurrence):
-				occurrence[property] = [0 for n in range(len(list))]
+		for annotation in Object2Annotations.get(object_id, []):
+			if (not annotation in occurrence):
+				occurrence[annotation] = [0 for n in range(len(list))]
 
-			occurrence[property][i] = 1
-			properties[property] = True
+			occurrence[annotation][i] = 1
+			annotations[annotation] = True
 
-	properties = xhash.ordered_keys(properties)
+	annotations = sorted(annotations.keys())
 
-	print >>sys.stderr, "  %s properties" % len(properties)
+	print >>sys.stderr, "  %s objects with %s distinct annotations" % (len(list), len(annotations))
 
-	if (len(properties) == 0):
-		error("none of the object could be annotated")
+	if (len(annotations) == 0):
+		error("none of the object was annotated")
 
-	pb = ui.ProgressBar(len(properties), offset = 2, stream = sys.stderr)
+	pb = ui.ProgressBar(len(annotations), offset = 2, stream = sys.stderr)
 
 	uncorrected_pvalues = []
 
-	for i, property in enumerate(properties):
-		p_value = enrichment.mHG(
-			occurrence[property],
-			B = len(Property2Objects[property]),
+	for i, annotation in enumerate(annotations):
+		p_value = Enrichment.mHG(
+			occurrence[annotation],
+			B = len(Annotation2Objects[annotation]),
 			N = len(list)
 		)
 
@@ -117,29 +131,26 @@ if (p.list_fn):
 
 	pb.clear()
 
-	corrected_pvalues = multiple_testing.fdr(uncorrected_pvalues)
+	corrected_pvalues = Enrichment.fdr(uncorrected_pvalues)
 
-	for i, property in enumerate(properties):
-		print >>p.output_fn, "%s	%s	%s" % (property, uncorrected_pvalues[i], corrected_pvalues[i])
-
-	p.output_fn.close()
+	for i, annotation in enumerate(annotations):
+		o.writerow((annotation, uncorrected_pvalues[i], corrected_pvalues[i]))
 
 if (p.subset_fn):
 	print >>sys.stderr, "reading subset from '%s'" % p.subset_fn
 
 	subset = []
 	seen = {}
-	for object_id in readline(p.subset_fn):
+	for row in csv.reader(open(p.subset_fn, 'r'), delimiter = p.delimiter):
+		object_id = row[0]
 		subset.append(object_id)
+
 		if (object_id in seen):
 			error("the subset contains duplicate entries")
 
 		seen[object_id] = True
 
 	n = len(subset)
-
-	print >>sys.stderr, "  %s objects" % n
-
 	N = p.population_size
 
 	if (N < n):
@@ -148,28 +159,28 @@ if (p.subset_fn):
 	b = {}
 
 	for i, object_id in enumerate(subset):
-		for property in Object2Properties.get(object_id, []):
-			if (not property in b):
-				b[property] = 0
+		for annotation in Object2Annotations.get(object_id, []):
+			if (not annotation in b):
+				b[annotation] = 0
 
-			b[property] += 1
+			b[annotation] += 1
 
-	properties = xhash.ordered_keys(b)
+	annotations = sorted(b.keys())
 
-	print >>sys.stderr, "  %s properties" % len(properties)
+	print >>sys.stderr, "  %s objects with %s distinct annotations" % (n, len(annotations))
 
-	if (len(properties) == 0):
-		error("none of the object could be annotated")
+	if (len(annotations) == 0):
+		error("none of the objects is annotated")
 
-	pb = ui.ProgressBar(len(properties), offset = 2, stream = sys.stderr)
+	pb = ui.ProgressBar(len(annotations), offset = 2, stream = sys.stderr)
 
 	uncorrected_pvalues = []
 
-	for i, property in enumerate(properties):
-		p_value = enrichment.fisher_exact_test(
-			b = b[property],
+	for i, annotation in enumerate(annotations):
+		p_value = Enrichment.fisher_exact_test(
+			b = b[annotation],
 			n = n,
-			B = len(Property2Objects[property]),
+			B = len(Annotation2Objects[annotation]),
 			N = N
 		)[2]
 
@@ -178,9 +189,9 @@ if (p.subset_fn):
 
 	pb.clear()
 
-	corrected_pvalues = multiple_testing.fdr(uncorrected_pvalues)
+	corrected_pvalues = Enrichment.fdr(uncorrected_pvalues)
 
-	for i, property in enumerate(properties):
-		print >>p.output_fn, "%s	%s	%s" % (property, uncorrected_pvalues[i], corrected_pvalues[i])
+	for i, annotation in enumerate(annotations):
+		o.writerow((annotation, uncorrected_pvalues[i], corrected_pvalues[i]))
 
-	p.output_fn.close()
+print >>sys.stderr, "done."

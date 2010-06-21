@@ -14,6 +14,16 @@ A typical application of enrichment analysis in bioinformatics is the search for
 .. [Eden2007a] Eden E, Lipson D, Yogev S and Yakhini Z. Motif discovery in ranked lists of DNA sequences. PLoS Computational Biology, 2007 Mar 23;3(3):e39
 .. [Eden2007b] Eden E. Discovering motifs in ranked lists of DNA sequences. Research thesis, 2007 Jan
 
+Contact
+-------
+
+Aurelien Mazurie, ajmazurie@oenone.net
+
+Keywords
+--------
+
+Enrichment analysis, Bioinformatic, Python, Fisher exact test
+
 Getting started
 ---------------
 
