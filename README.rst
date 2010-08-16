@@ -22,12 +22,12 @@ Aurelien Mazurie, ajmazurie@oenone.net
 Keywords
 --------
 
-Enrichment analysis, Bioinformatic, Python, Fisher exact test
+Enrichment analysis, Bioinformatic, Python, Fisher's exact test
 
 Getting started
 ---------------
 
-- Download the latest version of the library from http://github/ajmazurie/Enrichment
+- Download the latest version of the library from http://github/ajmazurie/Enrichment/downloads
 - Unzip the downloaded file, and go in the resulting directory
 - Run ``python setup.py install``. Alternatively, you can package the library by typing ``python setup.py bdist``, which will result in the creation of a file dist/Enrichment-xxx.tar.gz, with 'xxx' being the version number and the name of your platform. Installing the library is thus as simple as ``easy_install dist/Enrichment-xxx.tar.gz``
 
