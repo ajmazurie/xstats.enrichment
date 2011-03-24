@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+# see http://www.sourceweaver.com/posts/python-namespace-packages
 try:
 	from setuptools import setup, Extension, find_packages
 except ImportError:
@@ -15,7 +16,7 @@ setup(
 	description = "Statistics for enrichment analysis",
 	long_description = open("README.rst").read(),
 	url = "http://github.com/ajmazurie/Enrichment",
-	license = open("LICENSE").read(),
+	license = open("LICENSE.txt").read(),
 
 	author = "Aurelien Mazurie",
 	author_email = "ajmazurie@oenone.net",

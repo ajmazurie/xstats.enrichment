@@ -1,7 +1,7 @@
 
 import enrichment_
 
-def subset (b, n, B, N):
+def evaluate_subset (b, n, B, N):
 	""" Evaluate the enrichment of a subset of objects (drawn without
 	replacement from a larger population) in some attribute (i.e., value from
 	a categorical variable).
@@ -12,8 +12,8 @@ def subset (b, n, B, N):
 		- **B**: number of objects in the whole population with this attribute
 		- **N**: total number of objects in the whole population
 
-	subset() will compare, using the Fisher's exact test, the ratio of objects
-	having this attribute in the subset with the ratio found in the whole
+	evaluate_subset() will compare, using the Fisher's exact test, the ratio of
+	objects having this attribute in the subset with the ratio found in the whole
 	population, and return a p-value (probability of getting **b** objects with
 	the attribute in a sample of **n** distinct objects drawn without
 	replacement from a population of **N** objects of which **B** have the
@@ -71,7 +71,7 @@ def subset (b, n, B, N):
 
 	return left_tail, right_tail, two_tailed
 
-def list (occurrences, B = None, N = None, max_size = 1000, with_pivot = False):
+def evaluate_list (occurrences, B = None, N = None, max_size = 1000, with_pivot = False):
 	""" Evaluate the enrichment of the top of a ranked list of objects in some
 	attribute (i.e., value from a categorical variable).
 	
@@ -84,17 +84,17 @@ def list (occurrences, B = None, N = None, max_size = 1000, with_pivot = False):
 		- **N**: total number of objects in the population (optional). Default:
 		  number of objects described by **occurrences**
 
-	list() will calculate the probability of obtaining the observed density of
-	objects with the attribute at the top of a ranked list of **N** objects
-	under the null assumption that all repartitions of **B** successes in the
-	list are equiprobable.
+	evaluate_list() will calculate the probability of obtaining the observed
+	density of objects with the attribute at the top of a ranked list of **N**
+	objects under the null assumption that all repartitions of **B** successes
+	in the list are equiprobable.
 
 	Return:
 		- p-value
 		- pivot: position in the list chosen to distinguish between the top
 		  and bottom (only returned if **with_pivot** is set to True)
 
-	.. note:: Adapted from Eden et al., 200 and GOrilla source code
+	.. note:: Adapted from Eden et al., 2007 and GOrilla source code
 	"""
 	b = len(filter(lambda x: x, occurrences))
 

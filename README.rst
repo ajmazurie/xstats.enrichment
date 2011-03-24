@@ -1,15 +1,13 @@
 Enrichment
 ==========
 
-``Enrichment`` is a Python_ library for conducting two types of enrichment analysis:
+``enrichment`` is a Python_ library you can use to perform to type of enrichment analysis:
 
-- given a set of annotated objects selected from a larger population, it can evaluate the statistical significance of finding a given annotation in the selection when compared to the population. E.g., it can answer the question of how significant is it to find 12 women in a group of 20 person knowing that half of the world population is female. This evaluation is performed by a `Fisher's exact test <http://en.wikipedia.org/wiki/Fisher's_exact_test>`_.
+- you can compare how enriched a subset of objects is in some annotation when compared with a general population. E.g., how significant it is to find 12 women in a group of 20 people knowing that help of the world's population is female? The significance is evaluated using a `Fisher's exact test <http://en.wikipedia.org/wiki/Fisher's_exact_test>`_.
 
-- given a ranked list of annotated objects, it can identify if a given annotation is significantly enriched at the top of the list. The method used, from [Eden2007a]_ and [Eden2007b]_, doesn't require a cut-off to decide what the 'top' of the list is, but rather evaluate all cut-offs and corrects for multiple testing.
+- you can evaluate how enriched the top of a ranked list of objects is in some annotation. There is no need to apply a cut-off to decide what is the top of the list; the significance of this enrichment is evaluated using methods from [Eden2007a]_ and [Eden2007b]_
 
-Finally, ``Enrichment`` provides a set of methods to correct the resulting p-values for multiple testing, when multiple annotations are evaluated: `Bonferroni <http://en.wikipedia.org/wiki/Bonferroni_correction>`_ adjustment, `Holm-Bonferroni adjustment <http://en.wikipedia.org/wiki/Holm-Bonferroni_method>`_, and `Benjamini-Hochberg FDR <http://en.wikipedia.org/wiki/False_discovery_rate>`_ adjustment.
-
-A typical application of enrichment analysis in bioinformatics is the search for any property that may be shared by genes or proteins selected by an experiment. E.g., which functional annotation do genes selected for their high expression level have in common? In a list of genes ranked by decreasing fold change, in which metabolic pathway the most differentially expressed genes tend to fall into?
+A typical use of such library is in bioinformatics, to perform gene set enrichment analysis. Given a set of genes for which a property (such as the expression level) is measured, ``enrichment`` can evaluate how enriched is the subset of all genes with expression level above a threshold in some functional annotations. It can also evaluate how enriched the top of a list of genes, ranked by decreasing expression level, is in some functional annotations.
 
 .. [Eden2007a] Eden E, Lipson D, Yogev S and Yakhini Z. Motif discovery in ranked lists of DNA sequences. PLoS Computational Biology, 2007 Mar 23;3(3):e39
 .. [Eden2007b] Eden E. Discovering motifs in ranked lists of DNA sequences. Research thesis, 2007 Jan
@@ -22,23 +20,23 @@ Aurelien Mazurie, ajmazurie@oenone.net
 Keywords
 --------
 
-Enrichment analysis, Bioinformatic, Python, Fisher's exact test
+Enrichment analysis, Bioinformatic, Python, Fisher's exact test, GOrilla, mHG
 
 Getting started
 ---------------
 
-- Download the latest version of the library from http://github/ajmazurie/Enrichment/downloads
+- Download the latest version of the library from http://github/ajmazurie/xstats.enrichment/downloads
 - Unzip the downloaded file, and go in the resulting directory
 - Run ``python setup.py install``. Alternatively, you can package the library by typing ``python setup.py bdist``, which will result in the creation of a file dist/Enrichment-xxx.tar.gz, with 'xxx' being the version number and the name of your platform. Installing the library is thus as simple as ``easy_install dist/Enrichment-xxx.tar.gz``
 
-From then you only have to import ``Enrichment`` to use the library::
+From then you only have to import ``enrichment`` to use the library::
 
-	import Enrichment
+	import xstats.enrichment
 	
 	# Analysis 1: how significant is it to have 10 objects out of 500
 	# that share a given annotation, knowing that 120 out of the 1800
 	# objects in the general population have this annotation?
-	l, r, t = Enrichment.fisher_exact_test(10, 500, 120, 1800)
+	l, r, t = xstats.enrichment.evaluate_subset(10, 500, 120, 1800)
 	
 	# the left-tailed probability is the probability of having less
 	# than 10 objects out of 500 with this annotation:
@@ -64,7 +62,7 @@ From then you only have to import ``Enrichment`` to use the library::
 	
 	# conversely, finding 100 objects in the selection of 500 with
 	# this property is unexpectedly high:
-	l, r, t = Enrichment.fisher_exact_test(100, 500, 120, 1800)
+	l, r, t = xstats.enrichment.evaluate_subset(100, 500, 120, 1800)
 	
 	# the right-tailed p-value is very low, while the left-tailed is 1
 	print "left- and right-tailed:", l, r # 1, 1.32e-39
@@ -82,7 +80,7 @@ From then you only have to import ``Enrichment`` to use the library::
 	occurrences = [True, False] * 500
 	
 	# as expected, there is no significant enrichment at the top of the list:
-	print Enrichment.mHG(occurrences) # 0.99
+	print xstats.enrichment.evaluate_list(occurrences) # 0.99
 	
 	# we now build a second occurrence vector, in which the first 20 objects
 	# all have the annotations:
@@ -90,7 +88,7 @@ From then you only have to import ``Enrichment`` to use the library::
 	
 	# this time we found a significant enrichment at the top of the list,
 	# which in this case is determined as the 20 first entries:
-	p_value, pivot = Enrichment.mHG(occurrences, with_pivot = True)
+	p_value, pivot = xstats.enrichment.evaluate_list(occurrences, with_pivot = True)
 	
 	print "p-value:", p_value # 3.67e-5
 	print "pivot:", pivot # 20
