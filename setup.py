@@ -1,17 +1,28 @@
 #!/usr/bin/env python
 
-from distutils.core import setup, Extension
+try:
+	from setuptools import setup, Extension, find_packages
+except ImportError:
+	from ez_setup import use_setuptools
+	use_setuptools()
+	from setuptools import setup, Extension, find_packages
+
+#from distutils.core import setup, Extension
 
 setup(
 	name = "Enrichment",
-	version = "1.0b",
+	version = "1.0",
+	description = "Statistics for enrichment analysis",
+	long_description = open("README.rst").read(),
+	url = "http://github.com/ajmazurie/Enrichment",
+	license = open("LICENSE").read(),
+
 	author = "Aurelien Mazurie",
 	author_email = "ajmazurie@oenone.net",
-	url = "http://github.com/ajmazurie/Enrichment",
-	license = "MIT/X11",
 
-	packages = ["Enrichment"],
-	package_dir = {"Enrichment": "Enrichment"},
-	ext_modules = [Extension("Enrichment.enrichment_", ["Enrichment/enrichment_.c"])],
-	scripts = ["Tools/significant-attributes"],
+	namespace_packages = ["xstats"],
+	packages = find_packages("lib"),
+	package_dir = {'': "lib"},
+	ext_modules = [Extension("xstats.enrichment.enrichment_", ["lib/xstats/enrichment/enrichment_.c"])],
+	scripts = ["tools/significant-attributes"],
 )
