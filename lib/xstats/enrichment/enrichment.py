@@ -128,10 +128,10 @@ def evaluate_list (occurrences, B = None, N = None, max_size = 1000, with_pivot 
 	pivot = 0
 	b = 0
 	for n in range(1, N_ - 1):
-		if (occurrences[n - 1]):
+		if (occurrences[n - 1] in (1, True)):
 			b += 1
 
-		pvalue = fisher_exact_test(b, n, B, N)[1]
+		pvalue = evaluate_subset(b, n, B, N)[1]
 		if (pvalue <= min_hgt):
 			min_hgt = pvalue
 			pivot = n

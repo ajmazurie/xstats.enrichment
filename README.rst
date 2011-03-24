@@ -20,7 +20,7 @@ Aurelien Mazurie, ajmazurie@oenone.net
 Keywords
 --------
 
-Enrichment analysis, Bioinformatic, Python, Fisher's exact test, GOrilla, mHG
+Python, Enrichment analysis, Statistics, Bioinformatic, Fisher's exact test, GOrilla, mHG
 
 Getting started
 ---------------

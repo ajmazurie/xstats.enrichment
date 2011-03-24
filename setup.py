@@ -15,7 +15,7 @@ setup(
 	version = "1.0",
 	description = "Statistics for enrichment analysis",
 	long_description = open("README.rst").read(),
-	url = "http://github.com/ajmazurie/Enrichment",
+	url = "http://github.com/ajmazurie/xstats.enrichment",
 	license = open("LICENSE.txt").read(),
 
 	author = "Aurelien Mazurie",
