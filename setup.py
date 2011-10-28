@@ -11,7 +11,7 @@ except ImportError:
 #from distutils.core import setup, Extension
 
 setup(
-	name = "Enrichment",
+	name = "xstats.enrichment",
 	version = "1.0",
 	description = "Statistics for enrichment analysis",
 	long_description = open("README.rst").read(),

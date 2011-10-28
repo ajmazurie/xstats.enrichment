@@ -1,7 +1,7 @@
-Enrichment
-==========
+xstats.enrichment
+=================
 
-``enrichment`` is a Python_ library you can use to perform to type of enrichment analysis:
+``enrichment`` is a Python_ library, part of the ``xstats`` toolkit, which you can use to perform to type of enrichment analysis:
 
 - you can compare how enriched a subset of objects is in some annotation when compared with a general population. E.g., how significant it is to find 12 women in a group of 20 people knowing that help of the world's population is female? The significance is evaluated using a `Fisher's exact test <http://en.wikipedia.org/wiki/Fisher's_exact_test>`_.
 
@@ -12,22 +12,15 @@ A typical use of such library is in bioinformatics, to perform gene set enrichme
 .. [Eden2007a] Eden E, Lipson D, Yogev S and Yakhini Z. Motif discovery in ranked lists of DNA sequences. PLoS Computational Biology, 2007 Mar 23;3(3):e39
 .. [Eden2007b] Eden E. Discovering motifs in ranked lists of DNA sequences. Research thesis, 2007 Jan
 
-Contact
--------
-
-Aurelien Mazurie, ajmazurie@oenone.net
-
-Keywords
---------
-
-Python, Enrichment analysis, Statistics, Bioinformatic, Fisher's exact test, GOrilla, mHG
+- **Contact** Aurelien Mazurie <ajmazurie@oenone.net>
+- **Keywords** Python, Enrichment analysis, Statistics, Bioinformatic, Fisher's exact test, GOrilla, mHG
 
 Getting started
 ---------------
 
 - Download the latest version of the library from http://github/ajmazurie/xstats.enrichment/downloads
-- Unzip the downloaded file, and go in the resulting directory
-- Run ``python setup.py install``. Alternatively, you can package the library by typing ``python setup.py bdist``, which will result in the creation of a file dist/Enrichment-xxx.tar.gz, with 'xxx' being the version number and the name of your platform. Installing the library is thus as simple as ``easy_install dist/Enrichment-xxx.tar.gz``
+- Unzip the downloaded file, and ``cd`` in the resulting directory
+- Run ``python setup.py install``. Alternatively, you can package the library by typing ``python setup.py bdist``, which will result in the creation of a file dist/xstats.enrichment-xxx.tar.gz, with 'xxx' being the version number and the name of your platform. Installing the library is then as simple as ``easy_install dist/Enrichment-xxx.tar.gz`` (see the setuptools `documentation <http://pypi.python.org/pypi/setuptools>`_)
 
 From then you only have to import ``enrichment`` to use the library::
 
